@@ -4,6 +4,7 @@ const db = require("../models")
 const { Band, Meet_Greet, Event, Set_Time } = db
 const { Op } = require("sequelize")
 const meet_greet = require("../models/meet_greet")
+const stage = require("../models/stage")
 
 //FIND ALL BANDS
 bands.get("/", async(req, res) => {
@@ -24,10 +25,12 @@ bands.get("/", async(req, res) => {
 bands.get("/:name", async(req, res) => {
     try {
         var foundBand = await Band.findOne({
-            where: {name: req.params.name},
+            where: {
+                name: {[Op.like]: `%${req.params.name}%`}
+            },
             include: [
                 {
-                    model: meet_greet, 
+                    model: Meet_Greet, 
                     as: "meet_greets",
                     include: {
                         model: Event, 
@@ -35,17 +38,16 @@ bands.get("/:name", async(req, res) => {
                         where: { name: { [Op.like]: `%${req.query.event ? req.query.event : ''}%` } }
                     }
                 },
-
+            
                 {
                     model: Set_Time,
                     as: "set_times",
-                    include: { 
-                        model: Event, 
-                        as: "event",
-                        where: { name: { [Op.like]: `%${req.query.event ? req.query.event : ""}%` } }
-                    }
+                    // include: { 
+                    //     model: Stage, 
+                    //     as: "stage",
+                    //     where: { name: { [Op.like]: `%${req.query.stage ? req.query.stage : ''}%` } }
+                    // }
                 }
-
             ]
         })
         res.status(200).json(foundBand)
