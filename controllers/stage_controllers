@@ -1,0 +1,63 @@
+const stage = require("express").Router()
+const db = require("../models")
+const { Band, Meet_Greet, Event, Set_Time, Stage } = db
+const { Op } = require("sequelize")
+
+stage.get("/", async (req, res) => {
+    try {
+        let foundStages = await Stage.findAll({
+            order: [['date', "ASC"]]
+        })
+        res.status(200).json(foundStages)
+    } catch(err) {
+        res.json(err)
+    }
+})
+
+stage.get("/:id", async(req, res) => {
+    try {
+        let specificStage = await Stage.findOne({
+            where: {stage_id: req.params.id }
+        })
+        res.status(200).json(specificStage)
+    } catch(err) {
+        res.json(err)
+    }
+})
+
+stage.post("/", async(req, res) => {
+    try {
+        const createdStage = await Stage.create({
+            stage_id: null,
+            name: null,
+            date: null,
+            start_time: null,
+            end_time: null
+        })
+
+        res.status(200).json(createdStage())
+
+    } catch (err) {
+        res.json(err)
+    }
+})
+
+stage.put("/", (req, res) => {
+    res.status(200).send("hello check status this is put")
+})
+
+stage.delete("/:id", async(req, res) => {
+    try{
+        const deletedStage = await Stage.destroy({
+            where: {
+                id: req.params.id
+            }
+        })
+
+        deletedEvent()
+        console.log(`Stage ${req.params.id} was deleted`)
+    } catch(err) {
+        res.json(err)
+    }
+})
+module.exports = stage
